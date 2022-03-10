@@ -129,6 +129,7 @@ console.log(a.call(null));
 ### 3. 判断数组的方式有哪些
 
 - 通过Object.prototype.toString.call()做判断
+  - 这个最好
 
 ```javascript
 Object.prototype.toString.call(obj).slice(8,-1) === 'Array';
@@ -138,6 +139,12 @@ Object.prototype.toString.call(obj).slice(8,-1) === 'Array';
 
 ```javascript
 obj.__proto__ === Array.prototype;
+```
+
+- 通过construtor来判断
+
+```js
+obj.constructor === Array
 ```
 
 - 通过ES6的Array.isArray()做判断
@@ -1191,7 +1198,7 @@ console.log(repeated) // repeat for 3 times;repeat for 3 times;repeat for 3 time
 
 具体实现：
 
-```
+```js
 function objectFactory() {
   let newObject = null;
   let constructor = Array.prototype.shift.call(arguments);
@@ -1235,7 +1242,7 @@ map本质上就是键值对的集合，但是普通的Object中的键值对中�
 
 实际上Map是一个数组，它的每一个数据也都是一个数组，其形式如下：
 
-```
+```js
 const map = [
      ["name","张三"],
      ["age",18],
@@ -2392,7 +2399,7 @@ Axios 是一种基于Promise封装的HTTP客户端，其特点如下：
 
 ### 1. 对原型、原型链的理解
 
-在JavaScript中是使用构造函数来新建一个对象的，每一个构造函数的内部都有一个 prototype 属性，它的属性值是一个对象，这个对象包含了可以由该构造函数的所有实例共享的属性和方法。当使用构造函数新建一个对象后，在这个对象的内部将包含一个指针，这个指针指向构造函数的 prototype 属性对应的值，在 ES5 中这个指针被称为对象的原型。一般来说不应该能够获取到这个值的，但是现在浏览器中都实现了 __proto__ 属性来访问这个属性，但是最好不要使用这个属性，因为它不是规范中规定的。ES5 中新增了一个 Object.getPrototypeOf() 方法，可以通过这个方法来获取对象的原型。
+在JavaScript中是使用构造函数来新建一个对象的，每一个构造函数的内部都有一个 prototype 属性，它的属性值是一个对象，这个对象包含了可以由该构造函数的所有实例共享的属性和方法。当使用构造函数新建一个对象后，在这个对象的内部将包含一个指针，这个指针指向构造函数的 prototype 属性对应的值，在 ES5 中这个指针被称为对象的原型。一般来说不应该能够获取到这个值的，但是现在浏览器中都实现了 `__proto__` 属性来访问这个属性，但是最好不要使用这个属性，因为它不是规范中规定的。ES5 中新增了一个 Object.getPrototypeOf() 方法，可以通过这个方法来获取对象的原型。
 
 
 
@@ -2547,7 +2554,7 @@ for (var i = 1; i <= 5; i++) {
 }
 ```
 
-- 第三种就是使用 `let` 定义 `i` 了来解决问题了，这个也是最为推荐的方式
+- 第三种就是使用 `let` 定义 `i` 来解决问题了，这个也是最为推荐的方式
 
 ```javascript
 for (let i = 1; i <= 5; i++) {
@@ -2692,7 +2699,7 @@ this 是执行上下文中的一个属性，它指向最后一次调用这个方
 - apply 接受两个参数，第一个参数指定了函数体内 this 对象的指向，第二个参数为一个带下标的集合，这个集合可以为数组，也可以为类数组，apply 方法把这个集合中的元素作为参数传递给被调用的函数。
 - call 传入的参数数量不固定，跟 apply 相同的是，第一个参数也是代表函数体内的 this 指向，从第二个参数开始往后，每个参数被依次传入函数。
 
-### 3. 实现call、apply 及 bind 函数（建议看一下鲨鱼哥的掘金手写）
+### 3. 实现call、apply 及 bind 函数（建议看一下[鲨鱼哥的掘金手写](https://juejin.cn/post/6968713283884974088#heading-9)）
 
 **（1）call 函数的实现步骤：**
 
@@ -2704,7 +2711,7 @@ this 是执行上下文中的一个属性，它指向最后一次调用这个方
 - 删除刚才新增的属性。
 - 返回结果。
 
-```
+```js
 Function.prototype.myCall = function(context) {
   // 判断调用对象
   if (typeof this !== "function") {
@@ -2735,7 +2742,7 @@ Function.prototype.myCall = function(context) {
 - 删除刚才新增的属性
 - 返回结果
 
-```
+```js
 Function.prototype.myApply = function(context) {
   // 判断调用对象是否为函数
   if (typeof this !== "function") {
@@ -2765,7 +2772,7 @@ Function.prototype.myApply = function(context) {
 - 创建一个函数返回
 - 函数内部使用 apply 来绑定函数调用，需要判断函数作为构造函数的情况，这个时候需要传入当前函数的 this 给 apply 调用，其余情况都传入指定的上下文对象。
 
-```
+```js
 Function.prototype.myBind = function(context) {
   // 判断调用对象是否为函数
   if (typeof this !== "function") {
@@ -2810,7 +2817,7 @@ console.log('script end')   //3. 打印 script start
 
 #### （2）Promise
 
-Promise本身是**同步的立即执行函数**， 当在executor中执行resolve或者reject的时候, 此时是异步操作， 会先执行then/catch等，当主栈完成后，才会去调用resolve/reject中存放的方法执行，打印p的时候，是打印的返回结果，一个Promise实例。
+Promise本身是**同步的立即执行函数**， 当在executor中执行resolve或者reject的时候, 此时是异步操作， 会先执行then/catch等，当主栈完成后，才会去调用resolve/reject中存放的方法执行，打印的时候，是打印的返回结果，一个Promise实例。
 
 ```javascript
 console.log('script start')
@@ -2947,7 +2954,7 @@ Promise对象代表一个异步操作，有三种状态：pending（进行中）
 
 Promise构造函数接受一个函数作为参数，该函数的两个参数分别是`resolve`和`reject`。
 
-```
+```js
 const promise = new Promise(function(resolve, reject) {
   // ... some code
   if (/* 异步操作成功 */){
@@ -2964,7 +2971,7 @@ const promise = new Promise(function(resolve, reject) {
 
 `Promise.resolve(value)`的返回值也是一个promise对象，可以对返回值进行.then调用，代码如下：
 
-```
+```js
 Promise.resolve(11).then(function(value){
   console.log(value); // 打印出11
 });
@@ -3642,7 +3649,7 @@ setInterval(timer => {
 
 #### （1）垃圾回收的概念
 
-**垃圾回收**：JavaScript代码运行时，需要分配内存空间来储存变量和值。当变量不在参与运行时，就需要系统收回被占用的内存空间，这就是垃圾回收。
+**垃圾回收**：JavaScript代码运行时，需要分配内存空间来储存变量和值。当变量不再参与运行时，就需要系统收回被占用的内存空间，这就是垃圾回收。
 
 
 
@@ -3666,7 +3673,7 @@ setInterval(timer => {
 - 另外一种垃圾回收机制就是引用计数，这个用的相对较少。引用计数就是跟踪记录每个值被引用的次数。当声明了一个变量并将一个引用类型赋值给该变量时，则这个值的引用次数就是1。相反，如果包含对这个值引用的变量又取得了另外一个值，则这个值的引用次数就减1。当这个引用次数变为0时，说明这个变量已经没有价值，因此，在在机回收期下次再运行时，这个变量所占有的内存空间就会被释放出来。
 - 这种方法会引起**循环引用**的问题：例如：` obj1`和`obj2`通过属性进行相互引用，两个对象的引用次数都是2。当使用循环计数时，由于函数执行完后，两个对象都离开作用域，函数执行结束，`obj1`和`obj2`还将会继续存在，因此它们的引用次数永远不会是0，就会引起循环引用。
 
-```
+```js
 function fun() {
     let obj1 = {};
     let obj2 = {};
@@ -3677,9 +3684,9 @@ function fun() {
 
 这种情况下，就要手动释放变量占用的内存：
 
-```
-obj1.a =  null
- obj2.a =  null
+```js
+obj1.a = null
+obj2.a = null
 ```
 
 #### （3）减少垃圾回收
@@ -3687,7 +3694,7 @@ obj1.a =  null
 虽然浏览器可以进行垃圾自动回收，但是当代码比较复杂时，垃圾回收所带来的代价比较大，所以应该尽量减少垃圾回收。
 
 - **对数组进行优化：**在清空一个数组时，最简单的方法就是给其赋值为[ ]，但是与此同时会创建一个新的空对象，可以将数组的长度设置为0，以此来达到清空数组的目的。
-- **对**`**object**`**进行优化：**对象尽量复用，对于不再使用的对象，就将其设置为null，尽快被回收。
+- **对**`object`**进行优化：**对象尽量复用，对于不再使用的对象，就将其设置为null，尽快被回收。
 - **对函数进行优化：**在循环中的函数表达式，如果可以复用，尽量放在函数的外面。
 
 ### 2. 哪些情况会导致内存泄漏

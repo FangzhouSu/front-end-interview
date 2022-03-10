@@ -2,25 +2,64 @@
 ![手写代码面试题.png](https://cdn.nlark.com/yuque/0/2021/png/1500604/1621676946378-71d6b405-ef4e-42e4-9e42-f9c9aafcefb6.png?x-oss-process=image%2Fresize%2Cw_1038)
 
 
-##手写系列建议配合鲨鱼哥的掘金手写面试题文章一起看（更多更全）
+## 手写系列建议配合鲨鱼哥的[掘金手写面试题文章](https://juejin.cn/post/6968713283884974088)一起看（更多更全）
 
 ## 一、JavaScript 基础
 
 ### 1. 手写 Object.create 
 
-思路：将传入的对象作为原型
+思路：将传入的父类原型对象作为原型，返回**继承了父类（方法）的子类**的实例对象。
 
-```
-function create(obj) {
-  function F() {}
-  F.prototype = obj
-  return new F()
+```js
+const create = function(objPrototype) {
+  function Son() {};
+  Son.prototype = objPrototype;
+  return new Son();
 }
 ```
 
+验证一下：
+
+```js
+function Dad() {
+  this.attr = 0;
+}
+
+// 父类的方法
+Dad.prototype.change = function(x, y) {
+  this.attr += x;
+  console.info(this.attr, 'attr changed.');
+};
+
+function Son() {
+  // 继承属性
+  Dad.call(this); // call super constructor.
+}
+
+/**
+ * 第一行利用create方法达成子类续承父类的步骤👇
+ * constructor属性的作用是，可以得知某个实例对象，到底是哪一个构造函数产生的。
+ * 第二行为了纠正子类的构造函数指向正确
+ * create方法中传入new Dad()实例对象也可以完成继承，但是为了更符合create方法，我们传入Dad.prototype
+ */ 
+Son.prototype = create(Dad.prototype);
+Son.prototype.constructor = Son;
+
+var son = new Son();
+
+// 验证继承是否成功——父类的 属性 & 方法
+console.log('Is son an instance of Son?',
+ son instanceof Son); // true
+console.log('Is son an instance of Dad?',
+ son instanceof Dad); // true —— 继承成功
+son.change(666); // 666, 'attr changed.'
+```
+
+
+
 ### 2. 手写 instanceof 方法
 
-instanceof 运算符用于判断构造函数的 prototype 属性是否出现在对象的原型链中的任何位置。
+instanceof 运算符用于判断构造函数的 `prototype` 属性是否出现在某个实例对象的原型链上。
 
 
 
@@ -34,7 +73,7 @@ instanceof 运算符用于判断构造函数的 prototype 属性是否出现在�
 
 具体实现：
 
-```
+```js
 function myInstanceof(left, right) {
   let proto = Object.getPrototypeOf(left), // 获取对象的原型
       prototype = right.prototype; // 获取构造函数的 prototype 对象
@@ -61,7 +100,7 @@ function myInstanceof(left, right) {
 
 （4）判断函数的返回值类型，如果是值类型，返回创建的对象。如果是引用类型，就返回这个引用类型的对象。
 
-```
+```js
 function objectFactory() {
   let newObject = null;
   let constructor = Array.prototype.shift.call(arguments);
@@ -86,7 +125,7 @@ objectFactory(构造函数, 初始化参数);
 
 ### 4. 手写 Promise
 
-```
+```js
 const PENDING = "pending";
 const RESOLVED = "resolved";
 const REJECTED = "rejected";
@@ -201,14 +240,14 @@ MyPromise.prototype.then = function(onResolved, onRejected) {
 
 
 
-**那么，怎么保证后一个** `**then**` **里的方法在前一个** `**then**`**（可能是异步）结束之后再执行呢？**
+**那么，怎么保证后一个** `then` **里的方法在前一个** `then`**（可能是异步）结束之后再执行呢？**
 
 我们可以将传给 `then` 的函数和新 `promise` 的 `resolve` 一起 `push` 到前一个 `promise` 的 `callbacks` 数组中，达到承前启后的效果：
 
 - 承前：当前一个 `promise` 完成后，调用其 `resolve` 变更状态，在这个 `resolve` 里会依次调用 `callbacks` 里的回调，这样就执行了 `then` 里的方法了
 - 启后：上一步中，当 `then` 里的方法执行完成后，返回一个结果，如果这个结果是个简单的值，就直接调用新 `promise` 的 `resolve`，让其状态变更，这又会依次调用新 `promise` 的 `callbacks` 数组里的方法，循环往复。。如果返回的结果是个 `promise`，则需要等它完成之后再触发新 `promise` 的 `resolve`，所以可以在其结果的 `then` 里调用新 `promise` 的 `resolve`
 
-```
+```js
 then(onFulfilled, onReject){
     // 保存前一个promise的this
     const self = this; 
@@ -313,7 +352,7 @@ promiseAll([p3, p1, p2]).then(res => {
 
 该方法的参数是 Promise 实例数组, 然后其 then 注册的回调方法是数组中的某一个 Promise 的状态变为 fulfilled 的时候就执行. 因为 Promise 的状态**只能改变一次**, 那么我们只需要把 Promise.race 中产生的 Promise 对象的 resolve 方法, 注入到数组中的每一个 Promise 实例中的回调函数中即可.
 
-```
+```js
 Promise.race = function (args) {
   return new Promise((resolve, reject) => {
     for (let i = 0, len = args.length; i < len; i++) {
@@ -327,7 +366,7 @@ Promise.race = function (args) {
 
 函数防抖是指在事件被触发 n 秒后再执行回调，如果在这 n 秒内事件又被触发，则重新计时。这可以使用在一些点击请求的事件上，避免因为用户的多次点击向后端发送多次请求。
 
-```
+```js
 // 函数防抖的实现
 function debounce(fn, wait) {
   let timer = null;
@@ -342,7 +381,7 @@ function debounce(fn, wait) {
       timer = null;
     }
 
-    // 设置定时器，使事件间隔指定事件后执行
+    // 设置定时器，使事件间隔指定x后执行
     timer = setTimeout(() => {
       fn.apply(context, args);
     }, wait);
@@ -354,7 +393,7 @@ function debounce(fn, wait) {
 
 函数节流是指规定一个单位时间，在这个单位时间内，只能有一次触发事件的回调函数执行，如果在同一个单位时间内某事件被触发多次，只有一次能生效。节流可以使用在 scroll 函数的事件监听上，通过事件节流来降低事件调用的频率。
 
-```
+```js
 // 函数节流的实现;
 function throttle(fn, delay) {
   let curTime = Date.now();
@@ -375,7 +414,7 @@ function throttle(fn, delay) {
 
 ### 10. 手写类型判断函数
 
-```
+```js
 function getType(value) {
   // 判断数据是 null 的情况
   if (value === null) {
@@ -785,32 +824,51 @@ function deepCopy(object) {
 
 输入：
 
-```
+```js
 dateFormat(new Date('2020-12-01'), 'yyyy/MM/dd') // 2020/12/01
 dateFormat(new Date('2020-04-01'), 'yyyy/MM/dd') // 2020/04/01
 dateFormat(new Date('2020-04-01'), 'yyyy年MM月dd日') // 2020年04月01日
 ```
 
-```
+```js
 const dateFormat = (dateInput, format)=>{
     var day = dateInput.getDate() 
     var month = dateInput.getMonth() + 1  
     var year = dateInput.getFullYear()   
     format = format.replace(/yyyy/, year)
+    console.log(format)
     format = format.replace(/MM/,month)
+    console.log(format)
     format = format.replace(/dd/,day)
+    console.log(format)
     return format
 }
 ```
 
 ### 2. 交换a,b的值，不能用临时变量
 
-巧妙的利用两个数的和、差：
+#### 
 
+- `巧妙加减`
+
+```js
+let a = 1, b = 2;
+
+a = a + b; // 1 + 2 = 3
+b = a - b; // 3 - 2 = 1
+a = a - b; // 3 - 1 = 2 
 ```
-a = a + b
-b = a - b
-a = a - b
+
+
+
+- `利用异或运算`
+  - a ^ a = 0
+  - 0 ^ a = a
+
+```js
+a = a ^ b;
+b = a ^ b; // (a ^ b) ^ b = a
+a = a ^ b; // (a ^ b) ^ a = b
 ```
 
 ### 3. 实现数组的乱序输出
@@ -821,7 +879,7 @@ a = a - b
 - 第二次取出数据数组第二个元素，随机产生一个除了索引为1的之外的索引值，并将第二个元素与该索引值对应的元素进行交换
 - 按照上面的规律执行，直到遍历完成
 
-```
+```js
 var arr = [1,2,3,4,5,6,7,8,9,10];
 for (var i = 0; i < arr.length; i++) {
   const randomIndex = Math.round(Math.random() * (arr.length - 1 - i)) + i;
@@ -832,7 +890,7 @@ console.log(arr)
 
 还有一方法就是倒序遍历：
 
-```
+```js
 var arr = [1,2,3,4,5,6,7,8,9,10];
 let length = arr.length,
     randomIndex,
@@ -1455,7 +1513,7 @@ function parseParam(url) {
 
 三个亮灯函数：
 
-```
+```js
 function red() {
     console.log('red');
 }
@@ -1471,7 +1529,7 @@ function yellow() {
 
 #### （1）用 callback 实现
 
-```
+```js
 const task = (timer, light, callback) => {
     setTimeout(() => {
         if (light === 'red') {
@@ -1499,7 +1557,7 @@ task(3000, 'red', () => {
 
 上面提到过递归，可以递归亮灯的一个周期：
 
-```
+```js
 const step = () => {
     task(3000, 'red', () => {
         task(2000, 'green', () => {
@@ -1514,7 +1572,7 @@ step()
 
 #### （2）用 promise 实现
 
-```
+```js
 const task = (timer, light) => 
     new Promise((resolve, reject) => {
         setTimeout(() => {
@@ -1543,7 +1601,7 @@ step()
 
 #### （3）用 async/await 实现
 
-```
+```js
 const taskRunner =  async () => {
     await task(3000, 'red')
     await task(2000, 'green')
@@ -1555,7 +1613,7 @@ taskRunner()
 
 ### 2. 实现每隔一秒打印 1,2,3,4
 
-```
+```js
 // 使用闭包实现
 for (var i = 0; i < 5; i++) {
   (function(i) {
@@ -1576,7 +1634,7 @@ for (let i = 0; i < 5; i++) {
 
 有30个小孩儿，编号从1-30，围成一圈依此报数，1、2、3 数到 3 的小孩儿退出这个圈， 然后下一个小孩 重新报数 1、2、3，问最后剩下的那个小孩儿的编号是多少?
 
-```
+```js
 function childNum(num, count){
     let allplayer = [];    
     for(let i = 0; i < num; i++){
@@ -1611,7 +1669,7 @@ childNum(30, 3)
 
 ### 4. 用Promise实现图片的异步加载
 
-```
+```js
 let imageAsync=(url)=>{
             return new Promise((resolve,reject)=>{
                 let img = new Image();
@@ -1636,7 +1694,7 @@ imageAsync("url").then(()=>{
 
 ### 5. 实现发布-订阅模式
 
-```
+```js
 class EventCenter{
   // 1. 定义事件容器，用来装事件数组
     let handlers = {}

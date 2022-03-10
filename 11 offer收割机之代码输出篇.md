@@ -12,7 +12,7 @@
 
 ### 1. 代码输出结果
 
-```
+```js
 const promise = new Promise((resolve, reject) => {
   console.log(1);
   console.log(2);
@@ -31,7 +31,7 @@ console.log(4);
 4
 ```
 
-promise.then 是微任务，它会在所有的宏任务执行完之后才会执行，同时需要promise内部的状态发生变化，因为这里内部没有发生变化，一直处于pending状态，所以不输出3。
+`promise.then` 是微任务，它会在所有的宏任务执行完之后才会执行，同时需要promise内部的状态发生变化，因为这里内部没有发生变化，一直处于pending状态，所以不输出3。
 
 ### 2. 代码输出结果
 
@@ -1828,9 +1828,11 @@ console.log(f());
 
 ## 四、原型&继承
 
+![image.png](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/b8966f2402a64e0d8c92a48548eb6bda~tplv-k3u1fbpfcp-watermark.awebp?)
+
 ### 1. 代码输出结果
 
-```
+```js
 function Person(name) {
     this.name = name
 }

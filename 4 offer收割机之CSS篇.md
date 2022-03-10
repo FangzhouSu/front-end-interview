@@ -7,7 +7,7 @@
 | **选择器**     | **格式**      | **优先级权重** |
 | -------------- | ------------- | -------------- |
 | id 选择器      | #id           | 100            |
-| 类选择器       | #classname    | 10             |
+| 类选择器       | .classname    | 10             |
 | 属性选择器     | a[ref=“eee”]  | 10             |
 | 伪类选择器     | li:last-child | 10             |
 | 标签选择器     | div           | 1              |
@@ -140,7 +140,7 @@
 
 ### 7. transition 和 animation 的区别---了解即可
 
-- **transition 是过度属性**，强调过度，它的实现需要触发一个事件（比如鼠标移动上去，焦点，点击等）才执行动画。它类似于 flash 的补间动画，设置一个开始关键帧，一个结束关键帧。
+- **transition 是过渡属性**，强调过渡，它的实现需要触发一个事件（比如鼠标移动上去，焦点，点击等）才执行动画。它类似于 flash 的补间动画，设置一个开始关键帧，一个结束关键帧。
 - **animation 是动画属性**，它的实现不需要触发事件，设定好时间之后可以自己执行，且可以循环一个动画。它也类似于 flash 的补间动画，但是它可以设置多个关键帧（用@keyframe 定义）完成动画。
 
 ### 8. display:none 与 visibility:hidden 的区别
@@ -157,13 +157,13 @@
 - `display:none`是非继承属性，子孙节点会随着父节点从渲染树消失，通过修改子孙节点的属性也无法显示；
 - `visibility:hidden`是继承属性，子孙节点消失是由于继承了`hidden`，通过设置`visibility:visible`可以让子孙节点显示；
 
-（3）修改常规文档流中元素的 `display` 通常会造成文档的重排，但是修改`visibility`属性只会造成本元素的重绘；
+（3）修改常规文档流中元素的 `display` 通常会造成文档的重排（回流），但是修改`visibility`属性只会造成本元素的重绘；
 
 （4）如果使用读屏器，设置为`display:none`的内容不会被读取，设置为`visibility:hidden`的内容会被读取。
 
 ### 9. **伪元素和伪类的区别和作用？**
 
-- 伪元素：在内容元素的前后插入额外的元素或样式，但是这些元素实际上并不在文档中生成。它们只在外部显示可见，但不会在文档的源代码中找到它们，因此，称为“伪”元素。例如：
+- 伪元素：在内容元素的前后插入额外的元素或样式，但是这些元素实际上不在文档树中。它们只在外部显示可见，因此，称为“伪”元素。例如：
 
 ```css
 p::before {content:"第一章：";}
@@ -172,6 +172,8 @@ p::first-line {background:red;}
 p::first-letter {font-size:30px;}
 ```
 
+> 伪元素可以创建一些文档语言无法创建的虚拟元素。比如：文档语言没有一种机制可以描述元素内容的第一个字母或第一行，但伪元素可以做到(::first-letter、::first-line)。同时，伪元素还可以创建源文档不存在的内容，比如使用::before 或 ::after。
+
 - 伪类：将特殊的效果添加到特定选择器上。它是已有元素上添加类别的，不会产生新的元素。例如：
 
 ```css
@@ -179,7 +181,7 @@ a:hover {color: #FF00FF}
 p:first-child {color: red}
 ```
 
-**总结：**伪类是通过在元素选择器上加⼊伪类改变元素状态，⽽伪元素通过对元素的操作进⾏对元素的改变。
+**总结：**伪类是通过在元素选择器上加⼊伪类改变元素状态，⽽伪元素通过对元素的操作进行对元素的改变。伪元素和伪类都**不会出现在源文档或者文档树中**。
 
 ### 10. 对 requestAnimationframe 的理解
 
@@ -224,9 +226,11 @@ CSS3 中的盒模型有以下两种：标准盒子模型、IE 盒子模型
 - `box-sizing: content-box`表示标准盒模型（默认值）
 - `box-sizing: border-box`表示 IE 盒模型（怪异盒模型）
 
-### 12. 为什么有时候⽤**translate**来改变位置⽽不是定位？
+### 12. 为什么有时候用**translate**来改变位置而不是定位？
 
-translate 是 transform 属性的⼀个值。改变 transform 或 opacity 不会触发浏览器重新布局（reflow）或重绘（repaint），只会触发复合（compositions）。⽽改变绝对定位会触发重新布局，进⽽触发重绘和复合。transform 使浏览器为元素创建⼀个 GPU 图层，但改变绝对定位会使⽤到 CPU。 因此 translate()更⾼效，可以缩短平滑动画的绘制时间。 ⽽ translate 改变位置时，元素依然会占据其原始空间，绝对定位就不会发⽣这种情况。
+- translate 是 transform 属性的⼀个值。改变 transform 或 opacity 不会触发浏览器重新布局（回流）（reflow）或重绘（repaint），只会触发复合（compositions）。而改变绝对定位会触发重新布局，进而触发重绘和复合。
+- transform 使浏览器为元素创建⼀个 GPU 图层，但改变绝对定位会使用到 CPU。 因此 translate()更⾼效，可以缩短平滑动画的绘制时间。 
+- translate 改变位置时，元素依然会占据其原始空间，绝对定位就不会发生这种情况。
 
 ### 13. li 与 li 之间有看不见的空白间隔是什么原因引起的？如何解决？
 
@@ -244,12 +248,12 @@ translate 是 transform 属性的⼀个值。改变 transform 或 opacity 不会
 
 ### 14. CSS3 中有哪些新特性
 
-- 新增各种 CSS 选择器 （`: not(.input)`：所有 class 不是“input”的节点）
+- 新增各种 CSS 选择器 （`:not(.input)`：所有 class 不是“input”的节点）
 - 圆角 （border-radius:8px）
 - 多列布局 （multi-column layout）
 - 阴影和反射 （Shadoweflect）
 - 文字特效 （text-shadow）
-- 文字渲染 （Text-decoration）
+- 文字渲染 （text-decoration）
 - 线性渐变 （gradient）
 - 旋转 （transform）
 - 增加了旋转,缩放,定位,倾斜,动画,多背景
@@ -1083,18 +1087,18 @@ flex 布局是 CSS3 新增的一种布局方式，可以通过将一个元素的
 - 给父级 div 定义`height`属性
 - 最后一个浮动元素之后添加一个空的 div 标签，并添加`clear:both`样式
 - 包含浮动元素的父级标签添加`overflow:hidden`或者`overflow:auto`
-- 使用 :after 伪元素。由于 IE6-7 不支持 :after，使用 zoom:1 触发 hasLayout\*\*
+- 使用 `::after` 伪元素。由于 IE6-7 不支持 `::after`，使用 zoom:1 触发 hasLayout\*\*
 
 ```css
-.clearfix:after{
-    content: "\200B";
-    display: table;
-    height: 0;
-    clear: both;
-  }
-  .clearfix{
-    *zoom: 1;
-  }
+.clearfix::after{
+  content: "\200B";
+  display: table;
+  height: 0;
+  clear: both;
+}
+.clearfix{
+  *zoom: 1;
+}
 ```
 
 ### 2. 使用 clear 属性清除浮动的原理？
@@ -1296,7 +1300,7 @@ sticky 英文字面意思是粘贴，所以可以把它称之为粘性定位。�
 
 CSS 绘制三角形主要用到的是 border 属性，也就是边框。
 
-平时在给盒子设置边框时，往往都设置很窄，就可能误以为边框是由矩形组成的。实际上，border 属性是右三角形组成的，下面看一个例子：
+平时在给盒子设置边框时，往往都设置很窄，就可能误以为边框是由矩形组成的。实际上，border 属性是由三角形组成的，下面看一个例子：
 
 ```css
 div {
